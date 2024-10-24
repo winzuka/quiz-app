@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
 use App\Models\Answer;
 use App\Models\Question;
+=======
+>>>>>>> 41b16ad84b415f50aceca0a044f164cd33856885
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -11,12 +14,16 @@ use Illuminate\Http\Request;
 
 class QuestionController extends Controller
 {
+<<<<<<< HEAD
     private array $validateRules = ['required','string'];
+=======
+>>>>>>> 41b16ad84b415f50aceca0a044f164cd33856885
     public function gotoQuestionPage(): View|Factory|Application
     {
         return view('admin.createQuestions');
     }
 
+<<<<<<< HEAD
     public function addQuestion(request $request)
     {
         $this->validateRequest($request);
@@ -57,5 +64,10 @@ class QuestionController extends Controller
             'answer3' => $this->validateRules,
             'answer4' => $this->validateRules,
         ]);
+=======
+    public function addQuestion(): View|Factory|Application
+    {
+        return view('welcome');
+>>>>>>> 41b16ad84b415f50aceca0a044f164cd33856885
     }
 }
