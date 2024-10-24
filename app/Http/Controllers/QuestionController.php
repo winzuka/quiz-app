@@ -3,29 +3,29 @@
 namespace App\Http\Controllers;
 
 
+use App\Http\Requests\QuestionCreateRequest;
 use App\Models\Answer;
 use App\Models\Question;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class QuestionController extends Controller
 {
-    private array $validateRules = ['required','string'];
-
     public function gotoQuestionPage(): View|Factory|Application
     {
         return view('admin.createQuestions');
     }
 
-    public function addQuestion(request $request): \Illuminate\Http\RedirectResponse
+    public function addQuestion(QuestionCreateRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $this->validateRequest($request);
+       $validatedQuestionCreateRequest = $request->validated();
 
         $question = Question::create([
-            'question' => $request['question'],
-            'correct_answer' => $request['correct_answer'],
+            'question' => $validatedQuestionCreateRequest['question'],
+            'correct_answer' => $validatedQuestionCreateRequest['correct_answer'],
         ]);
 
         if(!$question){
@@ -33,10 +33,10 @@ class QuestionController extends Controller
         }
 
         $answers = [
-            'answer1' => $request['answer1'],
-            'answer2' => $request['answer2'],
-            'answer3' => $request['answer3'],
-            'answer4' => $request['answer4']
+            'answer1' => $validatedQuestionCreateRequest['answer1'],
+            'answer2' => $validatedQuestionCreateRequest['answer2'],
+            'answer3' => $validatedQuestionCreateRequest['answer3'],
+            'answer4' => $validatedQuestionCreateRequest['answer4']
         ];
 
         foreach ($answers as $answer) {
@@ -49,15 +49,54 @@ class QuestionController extends Controller
         return redirect()->route('dashboard');
     }
 
-    public function validateRequest(Request $request): void
+    public function editQuestion(string $questionId)
     {
-        $request->validate([
-            'question' => $this->validateRules,
-            'correct_answer' => $this->validateRules,
-            'answer1' => $this->validateRules,
-            'answer2' => $this->validateRules,
-            'answer3' => $this->validateRules,
-            'answer4' => $this->validateRules,
-        ]);
+        $question = Question::with('answers')->findOrFail($questionId);
+
+        $answer1 = $question->answers[0]->answer;
+        $answer2 = $question->answers[1]->answer;
+        $answer3 = $question->answers[2]->answer;
+        $answer4 = $question->answers[3]->answer;
+
+        $dataForBlade = [
+            'question' => $question,
+            'correct_answer' => $question->correct_answer,
+            'answer1' => $answer1,
+            'answer2' => $answer2,
+            'answer3' => $answer3,
+            'answer4' => $answer4,
+        ];
+
+        return view('admin.update')->with($dataForBlade);
+    }
+
+    public function updateQuestion(string $questionId, QuestionCreateRequest $request)
+    {
+        $validatedQuestionUpdateRequest = $request->validated();
+
+        $question = Question::findOrFail($questionId);
+
+        DB::transaction(function () use ($question, $validatedQuestionUpdateRequest) {
+
+            $question->update([
+                'question' => $validatedQuestionUpdateRequest['question'],
+                'correct_answer' => $validatedQuestionUpdateRequest['correct_answer'],
+            ]);
+
+            $answers = [
+                'answer1' => $validatedQuestionUpdateRequest['answer1'],
+                'answer2' => $validatedQuestionUpdateRequest['answer2'],
+                'answer3' => $validatedQuestionUpdateRequest['answer3'],
+                'answer4' => $validatedQuestionUpdateRequest['answer4']
+            ];
+
+            foreach($question->answers as $index => $answer){
+                    $answer->update([
+                        'answer' => $answers['answer'.($index+1)]
+                    ]);
+            }
+        });
+
+        return redirect()->route('dashboard');
     }
 }

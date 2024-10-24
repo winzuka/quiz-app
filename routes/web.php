@@ -19,6 +19,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('admin/createQuestions',[QuestionController::class,'gotoQuestionPage'] )->name('questionPage');
     Route::post('/add-question',[QuestionController::class,'addQuestion'] )->name('addQuestion');
+    Route::get('/edit-question/{questionId}',[QuestionController::class,'editQuestion'] )->name('editQuestion');
+    Route::put('/update-question/{questionId}',[QuestionController::class,'updateQuestion'] )->name('updateQuestion');
 
 
 });

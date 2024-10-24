@@ -46,7 +46,10 @@
                                 {{$answer->answer }}
                             </td>
                         @endforeach
-
+                        <td class="px-6 py-4">
+                           <a href="{{route('editQuestion',[$question->id])}}" class="text-green-600">Edit |</a>
+                            <a href="#" class="text-red-600">Remove</a>
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
