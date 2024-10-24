@@ -19,7 +19,7 @@ class QuestionController extends Controller
         return view('admin.createQuestions');
     }
 
-    public function addQuestion(request $request)
+    public function addQuestion(request $request): \Illuminate\Http\RedirectResponse
     {
         $this->validateRequest($request);
 
