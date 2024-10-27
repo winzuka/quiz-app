@@ -2,12 +2,13 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class QuestionCreateRequest extends FormRequest
 {
-    private array $validateRules = ['required','string', 'min:1'];
+    private array $validateRules = ['required', 'string', 'min:1'];
+
     /**
      * Determine if the user is authorized to make this request.
      */

@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-
-use App\Http\Requests\QuestionCreateRequest;
 use App\Models\Answer;
 use App\Models\Question;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Foundation\Application;
+use App\Http\Requests\QuestionCreateRequest;
 
 class QuestionController extends Controller
 {
@@ -21,14 +19,14 @@ class QuestionController extends Controller
 
     public function addQuestion(QuestionCreateRequest $request): \Illuminate\Http\RedirectResponse
     {
-       $validatedQuestionCreateRequest = $request->validated();
+        $validatedQuestionCreateRequest = $request->validated();
 
         $question = Question::create([
             'question' => $validatedQuestionCreateRequest['question'],
             'correct_answer' => $validatedQuestionCreateRequest['correct_answer'],
         ]);
 
-        if(!$question){
+        if (! $question) {
             return redirect()->route('dashboard');
         }
 
@@ -36,7 +34,7 @@ class QuestionController extends Controller
             'answer1' => $validatedQuestionCreateRequest['answer1'],
             'answer2' => $validatedQuestionCreateRequest['answer2'],
             'answer3' => $validatedQuestionCreateRequest['answer3'],
-            'answer4' => $validatedQuestionCreateRequest['answer4']
+            'answer4' => $validatedQuestionCreateRequest['answer4'],
         ];
 
         foreach ($answers as $answer) {
@@ -77,7 +75,6 @@ class QuestionController extends Controller
         $question = Question::findOrFail($questionId);
 
         DB::transaction(function () use ($question, $validatedQuestionUpdateRequest) {
-
             $question->update([
                 'question' => $validatedQuestionUpdateRequest['question'],
                 'correct_answer' => $validatedQuestionUpdateRequest['correct_answer'],
@@ -87,13 +84,13 @@ class QuestionController extends Controller
                 'answer1' => $validatedQuestionUpdateRequest['answer1'],
                 'answer2' => $validatedQuestionUpdateRequest['answer2'],
                 'answer3' => $validatedQuestionUpdateRequest['answer3'],
-                'answer4' => $validatedQuestionUpdateRequest['answer4']
+                'answer4' => $validatedQuestionUpdateRequest['answer4'],
             ];
 
-            foreach($question->answers as $index => $answer){
-                    $answer->update([
-                        'answer' => $answers['answer'.($index+1)]
-                    ]);
+            foreach ($question->answers as $index => $answer) {
+                $answer->update([
+                    'answer' => $answers['answer'.($index + 1)],
+                ]);
             }
         });
 
@@ -107,5 +104,4 @@ class QuestionController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Question has been deleted');
     }
-
 }
