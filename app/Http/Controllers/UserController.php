@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\UserAnswer;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
@@ -14,10 +15,25 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function showUserDashboard(): View|Factory|Application
+    public function showUserDashboard(Request $request): View|Factory|Application
     {
-        $questions = Question::with('answers')->get();
-        return view('user.dashboard')->with('questions', $questions);
+        $user = $request->user();
+//        $questions = Question::with('answers')->get();
+        $unAnsweredQuestions = Question::whereDoesntHave('userAnswers', function (Builder $query)use($user) {
+            $query->where('user_id', $user->id);
+        })->get();
+
+        $totalQuestionCount = Question::all()->count();
+
+        $correctAnswersCount = UserAnswer::where('user_id', $user->id)
+            ->where('correct', 1)
+            ->count();
+
+        return view('user.dashboard')->with(
+            ['questions' => $unAnsweredQuestions
+            , 'totalQuestionCount' => $totalQuestionCount
+                , 'correctAnswersCount' => $correctAnswersCount
+            ]);
    }
 
     public function addAnswer(string $questionId, Request $request): RedirectResponse
