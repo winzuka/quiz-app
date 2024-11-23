@@ -25,7 +25,7 @@
                                 <input type="text" id="answer{{$index + 1}}" name="answer{{$index + 1}}" class="input-field" value="{{$answer}}" placeholder="Answer 1" required />
 
                                 <div class="flex items-center ml-4">
-                                    <input id="correct_answer1" type="radio" name="correct_answer" value="answer1" class="btn-radio"
+                                    <input id="correct_answer1" type="radio" name="correct_answer" value="answer{{$index + 1}}" class="btn-radio"
                                         {{$correct_answer === 'answer'.($index + 1) ? 'checked' : ''}}
                                     />
                                     <label for="correct_answer1" class="ml-2 text-sm text-gray-900 dark:text-gray-300">Correct Answer</label>

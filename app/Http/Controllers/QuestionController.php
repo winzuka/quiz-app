@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Question;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
+use App\Service\GetQuestions;
 use Illuminate\Contracts\View\View;
+use App\Action\Admin\UpdateQuestions;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use App\Action\Admin\QuestionAndAnswers;
@@ -30,47 +30,29 @@ class QuestionController extends Controller
         return redirect()->route('dashboard')->with('failed', 'Validation Error');
     }
 
-    public function editQuestion(string $questionId, GetAllDetailsAboutQuestions $getAllDetailsAboutQuestions): RedirectResponse
+    public function editQuestion(string $questionId, GetAllDetailsAboutQuestions $getAllDetailsAboutQuestions): Factory|View|Application
     {
         if ($questionId) {
-            $getAllDetailsAboutQuestions->getQuestionAndRelatedAnswers($questionId);
+            return $getAllDetailsAboutQuestions->getQuestionAndRelatedAnswers($questionId);
         }
 
         return redirect()->route('dashboard')->with('failed', 'Validation Error');
     }
 
-    public function updateQuestion(string $questionId, QuestionCreateRequest $request): RedirectResponse
+    public function updateQuestion(string $questionId, QuestionCreateRequest $request, UpdateQuestions $updateQuestions): RedirectResponse
     {
         $validatedQuestionUpdateRequest = $request->validated();
 
-        $question = Question::findOrFail($questionId);
+        if ($validatedQuestionUpdateRequest) {
+            $updateQuestions->updateQuestionsAndAnswers($questionId, $validatedQuestionUpdateRequest);
+        }
 
-        DB::transaction(function () use ($question, $validatedQuestionUpdateRequest) {
-            $question->update([
-                'question' => $validatedQuestionUpdateRequest['question'],
-                'correct_answer' => $validatedQuestionUpdateRequest['correct_answer'],
-            ]);
-
-            $answers = [
-                'answer1' => $validatedQuestionUpdateRequest['answer1'],
-                'answer2' => $validatedQuestionUpdateRequest['answer2'],
-                'answer3' => $validatedQuestionUpdateRequest['answer3'],
-                'answer4' => $validatedQuestionUpdateRequest['answer4'],
-            ];
-
-            foreach ($question->answers as $index => $answer) {
-                $answer->update([
-                    'answer' => $answers['answer'.($index + 1)],
-                ]);
-            }
-        });
-
-        return redirect()->route('dashboard');
+        return redirect()->route('dashboard')->with('failed', 'Validation Error');
     }
 
-    public function deleteQuestion(string $questionId)
+    public function deleteQuestion(string $questionId): RedirectResponse
     {
-        $question = Question::findOrFail($questionId);
+        $question = GetQuestions::getQuestionByQuestionId($questionId);
         $question->delete();
 
         return redirect()->route('dashboard')->with('success', 'Question has been deleted');
