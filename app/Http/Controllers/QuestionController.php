@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Question;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use App\Action\Admin\QuestionAndAnswers;
 use App\Http\Requests\QuestionCreateRequest;
+use App\Action\Admin\GetAllDetailsAboutQuestions;
 
 class QuestionController extends Controller
 {
@@ -17,7 +19,7 @@ class QuestionController extends Controller
         return view('admin.createQuestions');
     }
 
-    public function addQuestion(QuestionCreateRequest $request, QuestionAndAnswers $questionAndAnswers): \Illuminate\Http\RedirectResponse
+    public function addQuestion(QuestionCreateRequest $request, QuestionAndAnswers $questionAndAnswers): RedirectResponse
     {
         $validatedQuestionCreateRequest = $request->validated();
 
@@ -28,28 +30,16 @@ class QuestionController extends Controller
         return redirect()->route('dashboard')->with('failed', 'Validation Error');
     }
 
-    public function editQuestion(string $questionId)
+    public function editQuestion(string $questionId, GetAllDetailsAboutQuestions $getAllDetailsAboutQuestions): RedirectResponse
     {
-        $question = Question::with('answers')->findOrFail($questionId);
+        if ($questionId) {
+            $getAllDetailsAboutQuestions->getQuestionAndRelatedAnswers($questionId);
+        }
 
-        $answer1 = $question->answers[0]->answer;
-        $answer2 = $question->answers[1]->answer;
-        $answer3 = $question->answers[2]->answer;
-        $answer4 = $question->answers[3]->answer;
-
-        $dataForBlade = [
-            'question' => $question,
-            'correct_answer' => $question->correct_answer,
-            'answer1' => $answer1,
-            'answer2' => $answer2,
-            'answer3' => $answer3,
-            'answer4' => $answer4,
-        ];
-
-        return view('admin.update')->with($dataForBlade);
+        return redirect()->route('dashboard')->with('failed', 'Validation Error');
     }
 
-    public function updateQuestion(string $questionId, QuestionCreateRequest $request)
+    public function updateQuestion(string $questionId, QuestionCreateRequest $request): RedirectResponse
     {
         $validatedQuestionUpdateRequest = $request->validated();
 

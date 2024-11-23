@@ -7,7 +7,7 @@ use App\Models\Question;
 
 class QuestionAndAnswers
 {
-    public function createQuestionAndAnswers(array $validatedQuestionCreateRequest)
+    public function createQuestionAndAnswers(array $validatedQuestionCreateRequest): \Illuminate\Http\RedirectResponse
     {
         $question = $this->createQuestion($validatedQuestionCreateRequest);
 
@@ -38,6 +38,7 @@ class QuestionAndAnswers
             'question' => $validatedQuestionCreateRequest['question'],
             'correct_answer' => $validatedQuestionCreateRequest['correct_answer'],
         ]);
+
         return $question;
     }
 }
