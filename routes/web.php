@@ -1,7 +1,36 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuestionController;
 
 Route::get('/', function () {
     return view('welcome');
+})->name('welcome');
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'showDashboard'])->name('dashboard');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('admin/createQuestions', [QuestionController::class, 'gotoQuestionPage'])->name('questionPage');
+    Route::post('/add-question', [QuestionController::class, 'addQuestion'])->name('addQuestion');
+    Route::get('/edit-question/{questionId}', [QuestionController::class, 'editQuestion'])->name('editQuestion');
+    Route::put('/update-question/{questionId}', [QuestionController::class, 'updateQuestion'])->name('updateQuestion');
+    Route::get('delete-question/{questionId}', [QuestionController::class, 'deleteQuestion'])->name('deleteQuestion');
 });
+
+Route::middleware(['auth', 'role:user'])->group(function () {
+    Route::get('/user/dashboard', [UserController::class, 'showUserDashboard'])->name('user-dashboard');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::post('/user-answer-for-question/{questionId}', [UserController::class, 'addAnswer'])->name('addAnswer');
+});
+require __DIR__.'/auth.php';
